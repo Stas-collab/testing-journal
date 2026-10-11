@@ -2,6 +2,7 @@ import { getRepositories } from "../repositories";
 import { StudentService } from "./studentService";
 import { TestService } from "./testService";
 import { ResultService } from "./resultService";
+import { AnalyticsService } from "./analyticsService";
 
 export function getServices() {
   const r = getRepositories();
@@ -9,5 +10,6 @@ export function getServices() {
     students: new StudentService(r.students, r.results),
     tests: new TestService(r.tests, r.results),
     results: new ResultService(r.results, r.students, r.tests),
+    analytics: new AnalyticsService(r.results, r.tests, r.students),
   };
 }

@@ -3,15 +3,12 @@ import { motion, AnimatePresence } from "motion/react";
 import {
   Users,
   Clipboard,
-  CheckSquare,
   BookOpen,
   Award,
   LogOut,
-  Sparkles,
-  User,
+  BarChart3,
   GraduationCap,
   ChevronRight,
-  TrendingUp,
 } from "lucide-react";
 
 // Page imports
@@ -19,6 +16,7 @@ import LoginPage from "./pages/LoginPage";
 import StudentsPage from "./pages/StudentsPage";
 import TestsPage from "./pages/TestsPage";
 import ResultsPage from "./pages/ResultsPage";
+import AnalyticsPage from "./pages/AnalyticsPage";
 import StudentTestsPage from "./pages/StudentTestsPage";
 import StudentResultsPage from "./pages/StudentResultsPage";
 
@@ -83,6 +81,12 @@ export default function App() {
       label: "Відомість оцінок",
       icon: Award,
       component: <ResultsPage />,
+    },
+    {
+      id: "analytics",
+      label: "Аналіз питань",
+      icon: BarChart3,
+      component: <AnalyticsPage />,
     },
   ];
 

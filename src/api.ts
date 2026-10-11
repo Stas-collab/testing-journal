@@ -1,11 +1,11 @@
-import { Student, Test, Result } from "./types";
+import { Student, Test, Result, TestAnalysis, Recommendations } from "./types";
 
 // Dynamic header resolution based on current login session
 function getHeaders(): HeadersInit {
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
-  
+
   try {
     const sessionStr = localStorage.getItem("test_app_session");
     if (sessionStr) {
@@ -20,7 +20,7 @@ function getHeaders(): HeadersInit {
   } catch (err) {
     console.error("Error reading session for headers:", err);
   }
-  
+
   return headers;
 }
 
@@ -51,12 +51,15 @@ export const api = {
   // Students
   getStudents: () => request<Student[]>("/api/students"),
   getStudentById: (id: string) => request<Student>(`/api/students/${id}`),
-  createStudent: (data: { name: string; email: string; group: string }) => 
+  createStudent: (data: { name: string; email: string; group: string }) =>
     request<Student>("/api/students", {
       method: "POST",
       body: JSON.stringify(data),
     }),
-  updateStudent: (id: string, data: { name: string; email: string; group: string }) =>
+  updateStudent: (
+    id: string,
+    data: { name: string; email: string; group: string },
+  ) =>
     request<Student>(`/api/students/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
@@ -87,8 +90,12 @@ export const api = {
   // Results
   getResults: () => request<Result[]>("/api/results"),
   getResultById: (id: string) => request<Result>(`/api/results/${id}`),
-  getResultsByStudent: (studentId: string) => request<Result[]>(`/api/results/student/${studentId}`),
-  createResult: (data: { test: string; answers: { questionText: string; selectedAnswer: string }[] }) =>
+  getResultsByStudent: (studentId: string) =>
+    request<Result[]>(`/api/results/student/${studentId}`),
+  createResult: (data: {
+    test: string;
+    answers: { questionText: string; selectedAnswer: string }[];
+  }) =>
     request<Result>("/api/results", {
       method: "POST",
       body: JSON.stringify(data),
@@ -97,4 +104,10 @@ export const api = {
     request<{ message: string }>(`/api/results/${id}`, {
       method: "DELETE",
     }),
+
+  // Analytics
+  getQuestionAnalytics: () =>
+    request<TestAnalysis[]>("/api/analytics/questions"),
+  getRecommendations: (studentId: string) =>
+    request<Recommendations>(`/api/analytics/recommendations/${studentId}`),
 };
