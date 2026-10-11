@@ -1,13 +1,7 @@
-import { Test, Question } from "../config/db";
+import { Test } from "../config/db";
 import { TestRepository, ResultRepository } from "../repositories/interfaces";
-import { badRequest, notFound } from "../errors/AppError";
-
-export interface TestInput {
-  title?: string;
-  subject?: string;
-  maxScore?: number;
-  questions?: Question[];
-}
+import { notFound } from "../errors/AppError";
+import { testSchema, parseOrThrow } from "../validation/schemas";
 
 export class TestService {
   constructor(
@@ -25,24 +19,12 @@ export class TestService {
     return test;
   }
 
-  private normalize(input: TestInput) {
-    const { title, subject, maxScore, questions } = input;
-    if (!title || !subject || !Array.isArray(questions)) {
-      throw badRequest("Назва, предмет та список питань є обов'язковими");
-    }
-    return {
-      title: title.trim(),
-      subject: subject.trim(),
-      maxScore: Number(maxScore) || questions.length,
-      questions: questions.map((q) => ({
-        questionText: q.questionText.trim(),
-        options: q.options.map((o) => o.trim()).filter(Boolean),
-        correctAnswer: q.correctAnswer.trim(),
-      })),
-    };
+  private normalize(input: unknown) {
+    const data = parseOrThrow(testSchema, input);
+    return { ...data, maxScore: data.maxScore ?? data.questions.length };
   }
 
-  create(input: TestInput): Promise<Test> {
+  create(input: unknown): Promise<Test> {
     return this.tests.create({
       id: `test-${Date.now()}`,
       ...this.normalize(input),
@@ -50,7 +32,7 @@ export class TestService {
     });
   }
 
-  async update(id: string, input: TestInput): Promise<Test> {
+  async update(id: string, input: unknown): Promise<Test> {
     const data = this.normalize(input);
     await this.getById(id);
     return (await this.tests.update(id, data))!;

@@ -26,10 +26,9 @@ export const getResultsByStudent = asyncHandler(async (req, res) => {
 });
 
 export const createResult = asyncHandler(async (req, res) => {
-  const { test, answers } = req.body;
   res
     .status(201)
-    .json(await getServices().results.submit(req.userId || "", test, answers));
+    .json(await getServices().results.submit(req.userId || "", req.body));
 });
 
 export const deleteResult = asyncHandler(async (req, res) => {

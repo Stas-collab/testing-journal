@@ -4,12 +4,7 @@ import {
   ResultRepository,
 } from "../repositories/interfaces";
 import { badRequest, notFound } from "../errors/AppError";
-
-export interface StudentInput {
-  name?: string;
-  email?: string;
-  group?: string;
-}
+import { studentSchema, parseOrThrow } from "../validation/schemas";
 
 export class StudentService {
   constructor(
@@ -27,20 +22,8 @@ export class StudentService {
     return student;
   }
 
-  private normalize(input: StudentInput) {
-    const { name, email, group } = input;
-    if (!name || !email || !group) {
-      throw badRequest("Усі поля (ім'я, email, група) обов'язкові");
-    }
-    return {
-      name: name.trim(),
-      email: email.trim().toLowerCase(),
-      group: group.trim(),
-    };
-  }
-
-  async create(input: StudentInput): Promise<Student> {
-    const data = this.normalize(input);
+  async create(input: unknown): Promise<Student> {
+    const data = parseOrThrow(studentSchema, input);
     if (await this.students.findByEmail(data.email)) {
       throw badRequest("Email вже використовується іншим студентом");
     }
@@ -51,8 +34,8 @@ export class StudentService {
     });
   }
 
-  async update(id: string, input: StudentInput): Promise<Student> {
-    const data = this.normalize(input);
+  async update(id: string, input: unknown): Promise<Student> {
+    const data = parseOrThrow(studentSchema, input);
     await this.getById(id);
 
     const duplicate = await this.students.findByEmail(data.email);

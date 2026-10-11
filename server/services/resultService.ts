@@ -5,7 +5,8 @@ import {
   TestRepository,
 } from "../repositories/interfaces";
 import { badRequest, forbidden, notFound } from "../errors/AppError";
-import { evaluateTest, ClientAnswer } from "./scoring";
+import { evaluateTest } from "./scoring";
+import { submissionSchema, parseOrThrow } from "../validation/schemas";
 
 export class ResultService {
   constructor(
@@ -46,16 +47,13 @@ export class ResultService {
     return (await this.populate([result]))[0];
   }
 
-  async submit(
-    studentId: string,
-    testId: string,
-    clientAnswers: ClientAnswer[],
-  ) {
+  async submit(studentId: string, input: unknown) {
     if (!studentId)
       throw badRequest("Не вказано ідентифікатор студента у заголовках");
-    if (!testId || !Array.isArray(clientAnswers)) {
-      throw badRequest("ID тесту та відповіді є обов'язковими");
-    }
+    const { test: testId, answers: clientAnswers } = parseOrThrow(
+      submissionSchema,
+      input,
+    );
 
     const test = await this.tests.findById(testId);
     if (!test) throw notFound("Тест");
